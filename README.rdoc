@@ -50,13 +50,13 @@ Another example:
     put "/notifications/new" do
       id = sysuuid
       @@channels[id] = EM::Channel.new
-      id
+      id+"\n"
     end
 
     put "/notifications/:n" do |n|
       channel = @@channels[n] and
-	channel.push "Done"
-      "Ok, I told them"
+	channel.push request.body.read
+      "Message sent\n"
     end
 
     aget "/notifications/:n" do |n|

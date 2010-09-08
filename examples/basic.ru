@@ -1,5 +1,6 @@
 #!/usr/bin/env rackup -Ilib:../lib -s thin
 require 'sinatra/async'
+require 'ruby-debug'
 require 'eventmachine'
 require 'sysuuid'
 
@@ -40,7 +41,7 @@ class AsyncTest < Sinatra::Base
 
   put "/notifications/:n" do |n|
     channel = @@channels[n.to_s] and
-      channel.push "Done"
+      channel.push request.body.read
     if channel
       puts "Pushed to channel #{n.inspect}"
     else
