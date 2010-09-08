@@ -41,23 +41,14 @@ class AsyncTest < Sinatra::Base
 
   put "/notifications/:n" do |n|
     channel = @@channels[n.to_s] and
-      channel.push request.body.read
-    if channel
-      puts "Pushed to channel #{n.inspect}"
-    else
-      puts "No channel #{n.inspect}"
-    end
-    "Ok, I told them\n"
+      channel.push request.body.read and
+      "Message sent\n" or
+    not_found { "No such channel" }
+    "Message sent\n"
   end
 
   aget "/notifications/:n" do |n|
-    channel = @@channels[n.to_s]
-    if channel
-      puts "Subscribing to channel #{n.inspect}"
-    else
-      puts "No channel #{n.inspect}, can't subscribe"
-    end
-    channel and
+    channel = @@channels[n.to_s] and
       subscription = channel.subscribe { |msg|
 	puts "Sending response to aget on channel #{n.inspect}"
 	body(msg)
@@ -65,7 +56,8 @@ class AsyncTest < Sinatra::Base
       on_close {
 	puts "channel #{n.inspect} closed, unsubscribing"
 	channel.unsubscribe(subscription)
-      }
+      } or
+    not_found { "No such channel" }
   end
 
 end

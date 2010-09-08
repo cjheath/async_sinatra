@@ -55,8 +55,9 @@ Another example:
 
     put "/notifications/:n" do |n|
       channel = @@channels[n] and
-	channel.push request.body.read
-      "Message sent\n"
+	channel.push request.body.read and
+	"Message sent\n" or
+      not_found { "No such channel" }
     end
 
     aget "/notifications/:n" do |n|
@@ -66,7 +67,8 @@ Another example:
 	} and
 	on_close {
 	  channel.unsubscribe(subscription)
-	}
+	} or
+      not_found { "No such channel" }
     end
   end
 
