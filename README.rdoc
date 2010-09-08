@@ -63,8 +63,10 @@ Another example:
       channel = @@channels[n] and
 	subscription = channel.subscribe { |msg|
 	  body(msg)
+	} and
+	on_close {
+	  channel.unsubscribe(subscription)
 	}
-      on_close { channel.unsubscribe(subscription) }
     end
   end
 
