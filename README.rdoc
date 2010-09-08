@@ -39,6 +39,35 @@ A quick example:
 
 See Sinatra::Async for more details.
 
+Another example:
+
+  require 'sinatra/async'
+  require 'sysuuid'
+
+  class AsyncTest < Sinatra::Base
+    @@channels = {}
+
+    put "/notifications/new" do
+      id = sysuuid
+      @@channels[id] = EM::Channel.new
+      id
+    end
+
+    put "/notifications/:n" do |n|
+      channel = @@channels[n] and
+	channel.push "Done"
+      "Ok, I told them"
+    end
+
+    aget "/notifications/:n" do |n|
+      channel = @@channels[n] and
+	subscription = channel.subscribe { |msg|
+	  body(msg)
+	}
+      on_close { channel.unsubscribe(subscription) }
+    end
+  end
+
 == REQUIREMENTS:
 
 * Sinatra (>= 0.9)
